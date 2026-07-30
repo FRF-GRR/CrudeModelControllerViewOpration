@@ -1,0 +1,132 @@
+﻿
+@{
+    ViewBag.Title = "CollageForm";
+}
+
+<h2>CollageForm</h2>
+
+@{
+    ViewBag.Title = "EmployeeForm";
+}
+
+<h2>CollageForm</h2>
+
+<table>
+    <tr>
+        <td>Collage Name:</td>
+        <td><input type="text" id="textname" /></td>
+    </tr>
+    <tr>
+        <td>Collage Country:</td>
+        <td>
+            <select id="ddlcountries">
+                <option value="0">--option--</option>
+            </select>
+        </td>
+    </tr>
+    <tr>
+        <td>Collage States:</td>
+        <td>
+            <select id="ddlstates">
+                <option value="0">--option--</option>
+            </select>
+        </td>
+    </tr>
+    <tr>
+        <td></td>
+        <td><input type="button" id="btnsubmit" value="Submit" onclick="InsertData()" /></td>
+    </tr>
+</table>
+<table id="tblshow">
+    <tr>
+        <th>Collage Id</th>
+        <th>Collage Name</th>
+        <th>Collage Country</th>
+        <th>Collage State</th>
+    </tr>
+</table>
+
+<script src="~/Scripts/jquery-3.7.0.min.js"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        bindcountries();
+        bindstates();
+        ShowData();
+    })
+
+    function bindcountries() {
+        $.ajax({
+            url: 'Collage/bindcountries',
+            type: 'post',
+            data: {},
+            success: function (countries) {
+                countries = JSON.parse(countries);
+                for (var i = 0; i < countries.length; i++) {
+                    $("#ddlcountries").append($('<option></option>').html(countries[i].CountryName).val(countries[i].CountryID));
+                }
+            },
+            error: function () {
+                alert("countries not found");
+            }
+
+        });
+
+    }
+
+    function bindstates() {
+        $.ajax({
+            url: 'Collage/bindstates',
+            type: 'post',
+            data: {},
+            success: function (states) {
+                states = JSON.parse(states);
+                for (var i = 0; i < states.length; i++) {
+                    $("#ddlstates").append($('<option></option>').html(states[i].StateName).val(states[i].StateID));
+                }
+            },
+            error: function () {
+                alert("states not found");
+            }
+
+        });
+
+    }
+
+    function InsertData() {
+        $.ajax({
+            url: 'Collage/InsertData',
+            type: 'post',
+            data: { Name: $("#textname").val(), Countries: $("#ddlcountries").val(), States: $("#ddlstates").val() },
+            success: function (states) {
+                alert("Data inserted successfully");
+                ShowData();
+            },
+            error: function () {
+                alert("Data not show");
+            }
+
+        });
+
+    }
+
+    function ShowData() {
+        $.ajax({
+            url: 'Collage/ShowData',
+            type: 'post',
+            data: {},
+            success: function (data) {
+                data = JSON.parse(data);
+                $("#tblshow").find("tr:gt(0)").remove();
+                for (var i = 0; i < data.length; i++) {
+                    $("#tblshow").append('<tr><td>' + data[i].id + '</td><td>' + data[i].name + '</td><td>' + data[i].country + '</td><td>' + data[i].state + '</td></tr>');
+                }
+            },
+            error: function () {
+                alert("Data not show");
+            }
+
+        });
+    }
+
+
+</script>
