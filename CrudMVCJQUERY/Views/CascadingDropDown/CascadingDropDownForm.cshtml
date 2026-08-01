@@ -1,0 +1,136 @@
+﻿
+@{
+    ViewBag.Title = "CascadingDropDownForm";
+}
+
+<h2>CascadingDropDownForm</h2>
+
+
+<table border="1" align="center" style="background-color:lightcyan;">
+
+    <tr style="margin:10px; padding:5px;">
+        <th>Name:</th>
+        <td>
+            <input type="text" id="txtname" />
+        </td>
+        <th>Contact:</th>
+        <td>
+            <input type="text" id="txtcontact" />
+        </td>
+        <th>Email:</th>
+        <td>
+            <input type="text" id="txtemail" />
+        </td>
+    </tr>
+    <tr style="margin:10px; padding:5px;">
+        <th >
+            Country:
+        </th>
+        <td >
+            <select id="ddlcountry" onchange="ShowStstes()" style="width:150px;">
+                <option value="0">Select Country</option>
+            </select>
+        </td>
+    
+    
+        <th >
+            State:
+        </th>
+        <td >
+            <select id="ddlstate" onchange="Showcity()"  style="width:150px;">
+                <option value="0">Select State</option>
+            </select>
+        </td>
+    
+    
+        <th >
+            City:
+        </th>
+        <td >
+            <select id="ddlcity"  style="width:150px;">
+                <option value="0">Select City</option>
+            </select>
+        </td>
+    </tr>
+    <tr style="margin:10px; padding:5px;">
+        <td align="center" colspan="6" >
+            <input style="width:150px; background-color:green; color:white;" type="button" id="btnsubmit" value="Submit" onclick="InsertData()" />
+        </td>
+    </tr>
+</table>
+
+
+<script src="~/Scripts/jquery-3.7.0.min.js"></script>
+<script type="text/javascript">
+ $(document).ready(function () {
+    ShowCountries();
+})
+
+function ShowCountries() {
+    $.ajax({
+        url: '@Url.Action("GetCountries", "CascadingDropDown")',
+        type: 'post',
+        data: {},
+        success: function(countries) {
+            countries = JSON.parse(countries);
+            $("#ddlcountry").empty();
+            $("#ddlcountry").append($('<option></option>').html("--Select--").val("0"));
+            for (var i = 0; i < countries.length; i++) {
+                $("#ddlcountry").append(
+                    $('<option></option>')
+                        .html(countries[i].CountryName)
+                        .val(countries[i].CountryID)   // ✅ CountryID (bade ID)
+                );
+            }
+        },
+        error: function() {
+            alert("Country not found");
+        }
+    });
+}
+
+function ShowStstes() {
+    $.ajax({
+        url: '@Url.Action("GetStates", "CascadingDropDown")',
+        type: 'post',
+        data: { CountryId: $("#ddlcountry").val() },
+        success: function (states) {
+            states = JSON.parse(states);
+            $("#ddlstate").empty();
+            $("#ddlstate").append($('<option></option>').html("--select--").val("0"));
+            for (var i = 0; i < states.length; i++) {
+                $("#ddlstate").append(
+                    $('<option></option>')
+                        .html(states[i].StateName)
+                        .val(states[i].StateID)   // ✅ StateID (bade ID)
+                );
+            }
+        },
+        error: function () {
+            alert("state not found");
+        }
+    });
+    }
+function Showcity() {
+    $.ajax({
+        url: '@Url.Action("GetCities", "CascadingDropDown")',
+        type: 'post',
+        data: { stateid: $("#ddlstate").val() },
+        success: function(cities) {
+            cities = JSON.parse(cities);
+            $("#ddlcity").empty();
+            $("#ddlcity").append($('<option></option>').html("--select--").val("0"));
+            for (var i = 0; i < cities.length; i++) {
+                $("#ddlcity").append(
+                    $('<option></option>')
+                        .html(cities[i].CityName)
+                        .val(cities[i].CityID)    
+                );
+            }
+        },
+        error: function () {
+            alert("city not found");
+        }
+    });
+}
+</script>

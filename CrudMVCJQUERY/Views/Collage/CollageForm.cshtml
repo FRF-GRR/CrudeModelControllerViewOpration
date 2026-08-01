@@ -135,12 +135,12 @@
     }
 
     function DeleteData(id) {
-        if (confirm('Are you sure delete roe')) { 
+        if (confirm('Are you sure delete row')) { 
         $.ajax({
             url: 'Collage/DeleteData',
             type: 'post',
             data: { Id: id },
-            success: function (data) {
+            success: function () {
                 alert("Data deleted successfully");
                 ShowData();
             },
@@ -160,7 +160,7 @@
                 data = JSON.parse(data);
                 $("#textname").val(data[0].name);
                 $("#ddlcountries").val(data[0].country);
-                $("#ddlstates").val(data[0].state);
+                $("#ddlstates").val(data[0].state); 
                 $("#btnsubmit").val("Update");
                 IDD = id;
                
