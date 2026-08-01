@@ -5,6 +5,12 @@
 
 <h2>CollageForm</h2>
 
+@{
+    ViewBag.Title = "EmployeeForm";
+}
+
+<h2>CollageForm</h2>
+
 <table>
     <tr>
         <td>Collage Name:</td>
@@ -97,21 +103,22 @@
    
 
     function InsertData() {
-            $.ajax({
+        $.ajax({
                 url: 'Collage/InsertUpdateData',
-                type: 'post',
+            type: 'post',
                 data: {Id:IDD, Name: $("#textname").val(), Countries: $("#ddlcountries").val(), States: $("#ddlstates").val() },
                 success: function () {
                     alert("Data updated successfully");
-                    ShowData();
+                ShowData();
                     clearbox();
-                },
-                error: function () {
+            },
+            error: function () {
                     alert("Data not updated");
-                }
+            }
 
-            });
-        }
+        });
+
+    }
 
     function ShowData() {
         $.ajax({
@@ -147,7 +154,7 @@
             }
         });
         }
-    }
+                }
 
     function EditData(id) {
         $.ajax({
@@ -162,7 +169,7 @@
                 $("#btnsubmit").val("Update");
                 IDD = id;
                
-            },  
+            },
             error: function () {
                 alert("Data not show");
             }
