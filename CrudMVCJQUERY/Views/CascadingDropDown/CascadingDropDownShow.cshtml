@@ -1,0 +1,46 @@
+﻿
+@{
+    ViewBag.Title = "CascadingDropDownShow";
+}
+
+<h2>CascadingDropDownShow</h2>
+<table id="tblshow" border="1" style="background-color:lightgray;" align="center">
+    <tr style="background-color:maroon; color:white;">
+        <th>Id</th>
+        <th>Name</th>
+        <th>Contact</th>
+        <th>Email</th>
+        <th>Country</th>
+        <th>State</th>
+        <th>City</th>
+    </tr>
+</table>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        // Your JavaScript code here
+        ShowEmployee();
+    });
+    <script src="~/Scripts/jquery-3.7.0.slim.js"></script>
+    function ShowEmployee() {
+        $.ajax({
+            url: '@Url.Action("GetEmployee", "CascadingDropDown")',
+            type: 'post',
+            data: {},
+            success: function (data) {
+                data = JSON.parse(data);
+                $("#tblshow").find("tr:gt(0)").remove();
+                for (var i = 0; i < data.length; i++) {
+                    $("#tblshow").append('<tr><td>' + data[i].id + '</td><td>' + data[i].name + '</td><td>' + data[i].contact + '</td><td>' + data[i].email + '</td><td>' + data[i].countries + '</td><td>' + data[i].states + '</td><td>' + data[i].cities + '</td></tr>');
+                }
+            },
+            error: function () {
+                alert
+                    ("Employee data not showing"); 
+            }
+        });
+    }
+
+
+
+</script>

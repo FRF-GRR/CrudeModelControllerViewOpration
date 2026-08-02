@@ -57,14 +57,35 @@
             <input style="width:150px; background-color:green; color:white;" type="button" id="btnsubmit" value="Submit" onclick="InsertData()" />
         </td>
     </tr>
+     <tr style="margin:10px; padding:5px;">
+        <td align="center" colspan="6" >
+            <input style="width:150px; background-color:cyan; color:white;" type="button" id="btnshow" value="ShowData" onclick="OpenInNewTab()" />
+        </td>
+    </tr>
 </table>
-
+<table id="tblshow" border="1" style="background-color:lightgray;" align="center">
+    <tr style="background-color:maroon; color:white;">
+        <th>Id</th>
+        <th>Name</th>
+        <th>Contact</th>
+        <th>Email</th>
+        <th>Country</th>
+        <th>State</th>
+        <th>City</th>
+        <th>Delete/Edit</th>
+        
+    </tr>
+</table>
 
 <script src="~/Scripts/jquery-3.7.0.min.js"></script>
 <script type="text/javascript">
- $(document).ready(function () {
-    ShowCountries();
-})
+    var IDD = 0;
+
+    $(document).ready(function () {
+        ShowCountries();
+        ShowEmployee();
+        clear();
+    });
 
 function ShowCountries() {
     $.ajax({
@@ -124,7 +145,7 @@ function Showcity() {
                 $("#ddlcity").append(
                     $('<option></option>')
                         .html(cities[i].CityName)
-                        .val(cities[i].CityID)    
+                        .val(cities[i].CityId)
                 );
             }
         },
@@ -133,4 +154,188 @@ function Showcity() {
         }
     });
 }
+
+    function InsertData() {
+    var name = $("#txtname").val();
+    var contact = $("#txtcontact").val();
+    var email = $("#txtemail").val();
+    var countryid = $("#ddlcountry").val();
+    var stateid = $("#ddlstate").val();
+    var cityid = $("#ddlcity").val();
+    $.ajax({
+        url: '@Url.Action("InsertData", "CascadingDropDown")',
+        type: 'post',
+        data: {
+            id: IDD,
+            name: name,
+            contact: contact,
+            email: email,
+            countries: countryid,
+            states: stateid,
+            cities: cityid
+        },
+        success: function() {
+            alert("Data inserted successfully");
+            ShowEmployee();
+            clear();
+        },
+        error: function () {
+            alert("Error inserting data");
+        }
+    });
+}
+
+    function ShowEmployee() {
+        $.ajax({
+            url: 'CascadingDropDown/GetEmployee',
+            type: 'post',
+            data: {},
+            success: function (data) {
+                data = JSON.parse(data);
+                $("#tblshow").find("tr:gt(0)").remove();
+                for (var i = 0; i < data.length; i++) {
+                    $("#tblshow").append('<tr><td>' + data[i].id + '</td><td>' + data[i].name + '</td><td>' + data[i].contact + '</td><td>' + data[i].email + '</td><td>' + data[i].countries + '</td><td>' + data[i].states + '</td><td>' + data[i].cities + '</td><td><input type="button" value="delete" onclick="DeleteData(' + data[i].id + ')"/><input type="button" value="Edit" onclick="EditData(' + data[i].id +')"/></td></tr>');
+                }
+            },
+            error: function () {
+                alert
+                    ("Employee data not showing");
+            }
+        });
+    }
+    // function EditData(id) {
+    //     $.ajax({
+    //         url: 'CascadingDropDown/EditEmployee',
+    //         type: 'post',
+    //         data: {id:id},
+    //         success: function(data) {
+    //             data = JSON.parse(data);
+    //            $("#txtname").val(data[0].name);
+    //             $("#txtcontact").val(data[0].contact);
+    //             $("#txtemail").val(data[0].email);
+    //             $("#ddlcountry").val(data[0].countries);
+    //             ShowCountries();
+    //             $("#ddlstate").val(data[0].states);
+    //             ShowStstes();
+    //             $("#ddlcity").val(data[0].cities);
+    //             $("#btnsubmit").val("Update");
+    //             IDD = id;
+
+    //         },
+    //         error: function () {
+    //             alert
+    //                 ("Edit data not found");
+    //         }
+    //     });
+    //}
+
+
+    function DeleteData(id) {
+        if (confirm('Are you sure delete this data')) {
+            $.ajax({
+                url: 'CascadingDropDown/DeleteEmployee',
+                type: 'post',
+                data: { id: id },
+                success: function () {
+                    alert("Data deleted successfully");
+                    ShowEmployee();
+                },
+                error: function () {
+                    alert
+                        ("Data not deleted");
+                }
+            });
+        }
+
+
+    }
+
+    function clear() {
+        $("#txtname").val("");
+        $("#txtcontact").val("");
+        $("#txtemail").val("");
+        $("#ddlcountry").val("0");
+        $("#ddlstate").val("0");
+        $("#ddlcity").val("0");
+        $("#btnsubmit").val("Submit");
+    }
+
+
+    var IDD = 0;   // global variable, agar already declared nahi hai
+
+function EditData(id) {
+    $.ajax({
+        url: '@Url.Action("EditEmployee", "CascadingDropDown")',
+        type: 'post',
+        data: { id: id },
+        success: function (data) {
+            data = JSON.parse(data);
+
+            $("#txtname").val(data[0].name);
+            $("#txtcontact").val(data[0].contact);
+            $("#txtemail").val(data[0].email);
+
+            // Country dropdown load hone ke BAAD value set karo
+            $.ajax({
+                url: '@Url.Action("GetCountries", "CascadingDropDown")',
+                type: 'post',
+                data: {},
+                success: function (countries) {
+                    countries = JSON.parse(countries);
+                    $("#ddlcountry").empty();
+                    $("#ddlcountry").append($('<option></option>').html("--Select--").val("0"));
+                    for (var i = 0; i < countries.length; i++) {
+                        $("#ddlcountry").append(
+                            $('<option></option>').html(countries[i].CountryName).val(countries[i].CountryID)
+                        );
+                    }
+                    $("#ddlcountry").val(data[0].countries);   // ✅ ab value set hogi, kyunki options ban chuke hain
+
+                    // States load karo country ke baad
+                    $.ajax({
+                        url: '@Url.Action("GetStates", "CascadingDropDown")',
+                        type: 'post',
+                        data: { CountryId: data[0].countries },
+                        success: function (states) {
+                            states = JSON.parse(states);
+                            $("#ddlstate").empty();
+                            $("#ddlstate").append($('<option></option>').html("--select--").val("0"));
+                            for (var i = 0; i < states.length; i++) {
+                                $("#ddlstate").append(
+                                    $('<option></option>').html(states[i].StateName).val(states[i].StateID)
+                                );
+                            }
+                            $("#ddlstate").val(data[0].states);   // ✅
+
+                            // Cities load karo state ke baad
+                            $.ajax({
+                                url: '@Url.Action("GetCities", "CascadingDropDown")',
+                                type: 'post',
+                                data: { stateid: data[0].states },
+                                success: function (cities) {
+                                    cities = JSON.parse(cities);
+                                    $("#ddlcity").empty();
+                                    $("#ddlcity").append($('<option></option>').html("--select--").val("0"));
+                                    for (var i = 0; i < cities.length; i++) {
+                                        $("#ddlcity").append(
+                                            $('<option></option>').html(cities[i].CityName).val(cities[i].CityId)
+                                        );
+                                    }
+                                    $("#ddlcity").val(data[0].cities);   // ✅
+                                }
+                            });
+                        }
+                    });
+                }
+            });
+
+            $("#btnsubmit").val("Update");
+            IDD = id;
+        },
+        error: function () {
+            alert("Edit data not found");
+        }
+    });
+}
+
 </script>
