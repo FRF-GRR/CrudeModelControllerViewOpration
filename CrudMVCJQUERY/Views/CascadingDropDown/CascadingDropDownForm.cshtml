@@ -3,6 +3,8 @@
     ViewBag.Title = "CascadingDropDownForm";
 }
 
+<link href="~/Content/bootstrap.css" rel="stylesheet" />
+<link href="~/Content/bootstrap.min.css" rel="stylesheet" />
 <h2>CascadingDropDownForm</h2>
 
 
@@ -11,15 +13,15 @@
     <tr style="margin:10px; padding:5px;">
         <th>Name:</th>
         <td>
-            <input type="text" id="txtname" />
+            <input clss="from-control" type="text" id="txtname" />
         </td>
         <th>Contact:</th>
         <td>
-            <input type="text" id="txtcontact" />
+            <input class="from-control" type="text" id="txtcontact" />
         </td>
         <th>Email:</th>
         <td>
-            <input type="text" id="txtemail" />
+            <input class="from-control" type="text" id="txtemail" />
         </td>
     </tr>
     <tr style="margin:10px; padding:5px;">
@@ -29,6 +31,7 @@
         <td >
             <select id="ddlcountry" onchange="ShowStstes()" style="width:150px;">
                 <option value="0">Select Country</option>
+                <option>--India--</option>
             </select>
         </td>
     
@@ -47,23 +50,23 @@
             City:
         </th>
         <td >
-            <select id="ddlcity"  style="width:150px;">
+            <select class="from-select" id="ddlcity"  style="width:150px;">
                 <option value="0">Select City</option>
             </select>
         </td>
     </tr>
     <tr style="margin:10px; padding:5px;">
         <td align="center" colspan="6" >
-            <input style="width:150px; background-color:green; color:white;" type="button" id="btnsubmit" value="Submit" onclick="InsertData()" />
+            <input class="btn btn-success from-control" style="width:150px; background-color:green; color:white;" type="button" id="btnsubmit" value="Submit" onclick="InsertData()" />
         </td>
     </tr>
      <tr style="margin:10px; padding:5px;">
         <td align="center" colspan="6" >
-            <input style="width:150px; background-color:cyan; color:white;" type="button" id="btnshow" value="ShowData" onclick="OpenInNewTab()" />
+            <input  class="btn btn-info from-control" style="width:150px; background-color:cyan; color:white;" type="button" id="btnshow" value="ShowData" onclick="OpenInNewTab()" />
         </td>
     </tr>
 </table>
-<table id="tblshow" border="1" style="background-color:lightgray;" align="center">
+<table class="table table-striped table-hover"  id="tblshow" border="1" style="background-color:lightgray;" align="center">
     <tr style="background-color:maroon; color:white;">
         <th>Id</th>
         <th>Name</th>
@@ -76,6 +79,8 @@
         
     </tr>
 </table>
+
+
 
 <script src="~/Scripts/jquery-3.7.0.min.js"></script>
 <script type="text/javascript">
@@ -92,6 +97,7 @@ function ShowCountries() {
         url: '@Url.Action("GetCountries", "CascadingDropDown")',
         type: 'post',
         data: {},
+        
         success: function(countries) {
             countries = JSON.parse(countries);
             $("#ddlcountry").empty();
@@ -114,7 +120,9 @@ function ShowStstes() {
     $.ajax({
         url: '@Url.Action("GetStates", "CascadingDropDown")',
         type: 'post',
+        async: false,
         data: { CountryId: $("#ddlcountry").val() },
+       
         success: function (states) {
             states = JSON.parse(states);
             $("#ddlstate").empty();
@@ -136,7 +144,9 @@ function Showcity() {
     $.ajax({
         url: '@Url.Action("GetCities", "CascadingDropDown")',
         type: 'post',
+        async: false,
         data: { stateid: $("#ddlstate").val() },
+       
         success: function(cities) {
             cities = JSON.parse(cities);
             $("#ddlcity").empty();
@@ -174,8 +184,11 @@ function Showcity() {
             states: stateid,
             cities: cityid
         },
-        success: function() {
-            alert("Data inserted successfully");
+        success: function () {
+            if (IDD == 0)
+                alert("Data inserted successfully");
+            else
+                alert("Data update successfully");
             ShowEmployee();
             clear();
         },
@@ -194,7 +207,7 @@ function Showcity() {
                 data = JSON.parse(data);
                 $("#tblshow").find("tr:gt(0)").remove();
                 for (var i = 0; i < data.length; i++) {
-                    $("#tblshow").append('<tr><td>' + data[i].id + '</td><td>' + data[i].name + '</td><td>' + data[i].contact + '</td><td>' + data[i].email + '</td><td>' + data[i].countries + '</td><td>' + data[i].states + '</td><td>' + data[i].cities + '</td><td><input type="button" value="delete" onclick="DeleteData(' + data[i].id + ')"/><input type="button" value="Edit" onclick="EditData(' + data[i].id +')"/></td></tr>');
+                    $("#tblshow").append('<tr><td>' + data[i].id + '</td><td>' + data[i].name + '</td><td>' + data[i].contact + '</td><td>' + data[i].email + '</td><td>' + data[i].countries + '</td><td>' + data[i].states + '</td><td>' + data[i].cities + '</td><td><input type="button" class="btn btn-danger" value="delete" onclick="DeleteData(' + data[i].id + ')"/><input type="button" value="Edit" class="btn btn-warning"  onclick="EditData(' + data[i].id +')"/></td></tr>');
                 }
             },
             error: function () {
@@ -203,31 +216,32 @@ function Showcity() {
             }
         });
     }
-    // function EditData(id) {
-    //     $.ajax({
-    //         url: 'CascadingDropDown/EditEmployee',
-    //         type: 'post',
-    //         data: {id:id},
-    //         success: function(data) {
-    //             data = JSON.parse(data);
-    //            $("#txtname").val(data[0].name);
-    //             $("#txtcontact").val(data[0].contact);
-    //             $("#txtemail").val(data[0].email);
-    //             $("#ddlcountry").val(data[0].countries);
-    //             ShowCountries();
-    //             $("#ddlstate").val(data[0].states);
-    //             ShowStstes();
-    //             $("#ddlcity").val(data[0].cities);
-    //             $("#btnsubmit").val("Update");
-    //             IDD = id;
+    function EditData(id) {
+        $.ajax({
+            url: 'CascadingDropDown/EditEmployee',
+            type: 'post',
+            data: {id:id},
+            success: function(data) {
+                data = JSON.parse(data);
+               $("#txtname").val(data[0].name);
+                $("#txtcontact").val(data[0].contact);
+                $("#txtemail").val(data[0].email);
+                $("#ddlcountry").val(data[0].countries);
+                ShowStstes();
+                $("#ddlstate").val(data[0].states);
+                Showcity();
+                $("#ddlcity").val(data[0].cities);
+                $("#btnsubmit").val("Update");
+                IDD = id;
+              
 
-    //         },
-    //         error: function () {
-    //             alert
-    //                 ("Edit data not found");
-    //         }
-    //     });
-    //}
+            },
+            error: function () {
+                alert
+                    ("Edit data not found");
+            }
+        });
+    }
 
 
     function DeleteData(id) {
@@ -261,9 +275,9 @@ function Showcity() {
     }
 
 
-    var IDD = 0;   // global variable, agar already declared nahi hai
+     // global variable, agar already declared nahi hai
 
-function EditData(id) {
+@*function EditData(id) {
     $.ajax({
         url: '@Url.Action("EditEmployee", "CascadingDropDown")',
         type: 'post',
@@ -332,10 +346,10 @@ function EditData(id) {
             $("#btnsubmit").val("Update");
             IDD = id;
         },
-        error: function () {
-            alert("Edit data not found");
-        }
-    });
-}
+        error: function () {*@
+//            alert("Edit data not found");
+//        }
+//    });
+//}
 
 </script>
